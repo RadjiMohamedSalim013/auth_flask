@@ -6,7 +6,7 @@
     <title>Page d'accueil</title>
 </head>
 <body>
-    <h1>Bienvenue sur la page d'accueil</h1>
-    <a href="{{ url_for('login') }}">Se connecter</a>
+    <h1>Bienvenue {{ username }} </h1>
+    <a href="{{ url_for('logout') }}">Se déconnecter</a>
 </body>
 </html>
