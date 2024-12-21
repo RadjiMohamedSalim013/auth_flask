@@ -1,5 +1,6 @@
 # Ignorer les fichiers de base de données
-*.db
+
+instance/
 
 # Ignorer les fichiers de cache Flask
 __pycache__/
