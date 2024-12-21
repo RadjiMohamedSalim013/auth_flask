@@ -1,0 +1,8 @@
+# Ignorer les fichiers de base de données
+*.db
+
+# Ignorer les fichiers de cache Flask
+__pycache__/
+
+# Ignorer les fichiers d'environnement virtuel
+venv/
