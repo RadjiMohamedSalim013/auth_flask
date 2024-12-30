@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import  LoginManager, UserMixin, login_user,  logout_user, login_required, current_user
+
 
 
 
@@ -13,9 +15,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+
+
 #création de la table User
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
@@ -24,12 +34,16 @@ with app.app_context():
     db.create_all()
 
 
-@app.route('/')
-def home():
-    if  "username" in session:
-        return render_template('home.html', username=session["username"])
-    return redirect(url_for('login'))
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
+
+
+@app.route('/')
+@login_required
+def home():
+        return render_template('home.html', username=current_user.username)
 
 #connexion
 @app.route('/login', methods=['GET', 'POST'])
@@ -41,7 +55,7 @@ def login():
         # Vérifier l'utilisateur dans la base de données
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
-            session['username'] = username
+            login_user(user)
             return redirect(url_for('home'))
         else:
             return 'Nom d\'utilisateur ou mot de passe incorrect'
@@ -76,8 +90,8 @@ def register():
 
 @app.route('/logout')
 def logout():
-    session.pop('username',None)
-    return redirect(url_for('home'))
+    logout_user()
+    return redirect(url_for('login'))
 
 
 
